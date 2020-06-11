@@ -8,40 +8,76 @@
     android:background="@color/colorPrimary"
     android:gravity="bottom"
     android:orientation="vertical"
+    android:padding="5dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp">
 
     <ImageView
-        android:id="@+id/profileImage"
+        android:id="@+id/profileImageNavHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/loginButtonNavHeader"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.85"
         app:srcCompat="@drawable/profiledefault" />
 
     <TextView
-        android:id="@+id/profileName"
+        android:id="@+id/profileNameNavHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="18sp"
-        app:layout_constraintStart_toEndOf="@+id/profileImage"
-        app:layout_constraintTop_toTopOf="@+id/profileImage"
+        app:layout_constraintStart_toEndOf="@+id/profileImageNavHeader"
+        app:layout_constraintTop_toTopOf="@+id/profileImageNavHeader"
         tools:text="Katerinah" />
 
     <TextView
-        android:id="@+id/profileEmail"
+        android:id="@+id/profileEmailNavHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@+id/profileImage"
-        app:layout_constraintTop_toBottomOf="@+id/profileName"
+        app:layout_constraintStart_toEndOf="@+id/profileImageNavHeader"
+        app:layout_constraintTop_toBottomOf="@+id/profileNameNavHeader"
         tools:text="katerina.hanson@gmail.com" />
+
+    <Button
+        android:id="@+id/loginButtonNavHeader"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:onClick="loginButtonNavClicked"
+        android:text="@string/login"
+        android:textAlignment="viewStart"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/addChannelButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@android:color/transparent"
+        android:onClick="addChannelClicked"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/add_channel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/addchannelbutton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
