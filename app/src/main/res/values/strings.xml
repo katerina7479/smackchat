@@ -12,4 +12,9 @@
     <string name="don_t_have_an_account">Don\'t Have an Account?</string>
     <string name="email">email</string>
     <string name="password">password</string>
+    <string name="user_name">user name</string>
+    <string name="avatar_prompt">Tap to Generate Avatar</string>
+    <string name="create_user">Create User</string>
+    <string name="generate_background_color">Generate Background Color</string>
+    <string name="select_avatar">Select Avatar</string>
 </resources>
