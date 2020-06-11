@@ -17,7 +17,7 @@
         android:id="@+id/profileImageNavHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:layout_constraintBottom_toTopOf="@+id/loginButtonNavHeader"
@@ -52,14 +52,15 @@
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
         android:onClick="loginButtonNavClicked"
         android:text="@string/login"
-        android:textAlignment="viewStart"
+        android:textAlignment="center"
         android:textAllCaps="true"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/addChannelButton"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
