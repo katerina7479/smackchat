@@ -1,10 +1,12 @@
 package com.katerinah.smackchat.Controllers
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
 import kotlinx.android.synthetic.main.activity_create_user.*
@@ -54,10 +56,24 @@ class CreateUserActivity : AppCompatActivity() {
 
     fun onCreateUserClicked(view: View){
         Log.d(TAG, "User Create")
-        AuthService.registerUser(this, "k@k.com", "123456") {complete ->
+        val username = signupUserName.text.toString()
+        val email = signupEmail.text.toString()
+        val password = signupPassword.text.toString()
+
+        if (email.isEmpty() || password.isEmpty()){
+            Toast.makeText(this, "Enter a user and password", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AuthService.registerUser(this, email, password) {complete ->
             if (complete){
                 Log.d(TAG,"User was created")
-            }
+                Toast.makeText(this, "User Created", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            } else (
+                Toast.makeText(this, "Unable to create user", Toast.LENGTH_SHORT).show()
+            )
         }
     }
 }
