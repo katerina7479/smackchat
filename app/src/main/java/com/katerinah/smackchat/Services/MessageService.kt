@@ -3,7 +3,6 @@ package com.katerinah.smackchat.Services
 import android.content.Context
 import android.util.Log
 import com.android.volley.Response
-import com.android.volley.toolbox.JsonArrayRequest
 import com.katerinah.smackchat.Models.Channel
 import com.katerinah.smackchat.Utils.URL_GET_CHANNELS
 import org.json.JSONException
@@ -20,7 +19,7 @@ object MessageService {
 
     fun getChannels(context: Context, complete: (Boolean) -> Unit) {
         Log.d(TAG, "Getting channels")
-        val request = object: JsonArrayRequest(
+        val request = VolleyService.getAuthJsonArrayRequest(
             URL_GET_CHANNELS,
             Response.Listener {response ->
                 try {
@@ -39,17 +38,7 @@ object MessageService {
                 Log.d(TAG, "Could not retrieve channels: $it")
                 complete(false)
             }
-        ) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
-            }
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer ${AuthService.authToken}")
-                return headers
-            }
-        }
-
+        )
         VolleyService.getInstance(context).addToRequestQueue(request)
     }
 }

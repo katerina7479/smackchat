@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.android.volley.Request.Method.*
 import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
 import com.katerinah.smackchat.Utils.*
 import org.json.JSONException
 import org.json.JSONObject
-import com.android.volley.toolbox.JsonObjectRequest as JsonObjectRequest
 
 object AuthService {
 
@@ -30,7 +28,7 @@ object AuthService {
         jsonBody.put("password", password)
         val requestBody = jsonBody.toString()
 
-        val request = object : StringRequest(
+        val request = VolleyService.getStringRequest(
             POST,
             URL_ACCOUNT_REGISTER,
             Response.Listener { complete(true) },
@@ -42,15 +40,9 @@ object AuthService {
                     Log.e(TAG, "Could not register user: $response")
                     complete(false)
                 }
-            }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
-            }
-
-            override fun getBody(): ByteArray? {
-                return requestBody.toByteArray()
-            }
-        }
+            },
+            requestBody
+        )
         VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
@@ -59,7 +51,7 @@ object AuthService {
         requestBody.put("email", email)
         requestBody.put("password", password)
 
-        val request = object : JsonObjectRequest(
+        val request = VolleyService.getJsonObjectRequest(
             URL_ACCOUNT_LOGIN,
             requestBody,
             Response.Listener {
@@ -77,11 +69,8 @@ object AuthService {
             Response.ErrorListener {
                 Log.e(TAG, "Could not login user: $it")
                 complete(false)
-            }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
             }
-        }
+        )
         VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
@@ -92,7 +81,7 @@ object AuthService {
         requestBody.put("avatarName", avatarName)
         requestBody.put("avatarColor", avatarColor)
 
-        val request = object : JsonObjectRequest(
+        val request = VolleyService.getAuthJsonObjectRequest(
             URL_ADD_USER,
             requestBody,
             Response.Listener {response ->
@@ -112,22 +101,14 @@ object AuthService {
             Response.ErrorListener {
                 Log.d(TAG, "Could not create user: $it")
                 complete(false)
-            }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
             }
-
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer $authToken")
-                return headers
-            }
-        }
+        )
         VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
     fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
-        val request = object: JsonObjectRequest (
+
+        val request = VolleyService.getAuthJsonObjectRequest(
             "${URL_GET_USER_BY_EMAIL}${userEmail}",
             null,
             Response.Listener { response ->
@@ -141,18 +122,8 @@ object AuthService {
             Response.ErrorListener {
                 Log.e(TAG, "Could not retrieve user: $it")
                 complete(false)
-            }) {
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
             }
-
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer $authToken")
-                return headers
-            }
-        }
-
+        )
         VolleyService.getInstance(context).addToRequestQueue(request)
     }
 }
