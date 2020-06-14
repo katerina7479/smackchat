@@ -24,13 +24,6 @@ import kotlinx.android.synthetic.main.nav_header_main.*
 class MainActivity : AppCompatActivity() {
     private val TAG = "SmackMainActivity"
 
-    fun hideKeyboard() {
-        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (inputManager.isAcceptingText) {
-            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -120,6 +113,5 @@ class MainActivity : AppCompatActivity() {
 
     fun sendButtonClicked(view: View){
         Log.d(TAG, "Message send button clicked")
-        hideKeyboard()
     }
 }
