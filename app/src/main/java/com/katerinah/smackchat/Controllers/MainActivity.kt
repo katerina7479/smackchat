@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        hideKeyboard()
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -109,19 +108,18 @@ class MainActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_modal, null)
             builder.setView(dialogView).setPositiveButton("Add") { dialogInterface: DialogInterface, i: Int ->
-                hideKeyboard()
                 val nameField = dialogView.findViewById<EditText>(R.id.addChannelNameText)
                 val descField = dialogView.findViewById<EditText>(R.id.addChannelDescText)
                 val channelNameText = nameField.text.toString()
                 val descText = descField.text.toString()
                 Log.d(TAG, "Creating channel $channelNameText, $descText")
             }.setNegativeButton("Cancel") { _, _ ->
-                hideKeyboard()
             }.show()
         }
     }
 
     fun sendButtonClicked(view: View){
         Log.d(TAG, "Message send button clicked")
+        hideKeyboard()
     }
 }

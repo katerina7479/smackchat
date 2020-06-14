@@ -10,12 +10,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Controllers.CreateUserActivity"></activity>
-        <activity android:name=".Controllers.LoginActivity" />
+        <activity
+            android:name=".Controllers.CreateUserActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            />
+        <activity android:name=".Controllers.LoginActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            />
         <activity
             android:name=".Controllers.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
