@@ -6,11 +6,15 @@ const val DEFAULT_COLOR = "[0.5, 0.5, 0.5, 1]"
 
 // URLS
 const val BASE_URL = "https://mac-chat-api-app.herokuapp.com/v1"
+const val SOCKET_URL = "https://mac-chat-api-app.herokuapp.com/"
 
 const val URL_ACCOUNT_REGISTER = "${BASE_URL}/account/register"
 const val URL_ACCOUNT_LOGIN = "${BASE_URL}/account/login"
 const val URL_ADD_USER = "${BASE_URL}/user/add"
 const val URL_GET_USER_BY_EMAIL = "${BASE_URL}/user/byEmail/"
+
+// Socket Events
+const val NEW_CHANNEL = "newChannel"
 
 // BROADCAST
 const val BROADCAST_USER_DATA_CHANGED = "BROADCAST_USER_DATA_CHANGED"

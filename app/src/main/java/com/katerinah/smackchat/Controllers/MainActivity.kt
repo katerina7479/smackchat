@@ -4,9 +4,7 @@ import android.app.AlertDialog
 import android.content.*
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -16,13 +14,15 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
 import com.katerinah.smackchat.Services.UserDataService
-import com.katerinah.smackchat.Utils.BROADCAST_USER_DATA_CHANGED
+import com.katerinah.smackchat.Utils.*
+import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "SmackMainActivity"
+    val socketClient = IO.socket(SOCKET_URL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,16 +40,41 @@ class MainActivity : AppCompatActivity() {
         updateHeader()
         updateMain()
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-            UserDataChangedReceiver,
-            IntentFilter(BROADCAST_USER_DATA_CHANGED))
+
     }
 
-    private val UserDataChangedReceiver = object: BroadcastReceiver() {
+    private val _userDataChangedReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d(TAG, "Client changed, updating")
             updateHeader()
             updateMain()
+            Log.d(TAG, "Connecting Socket")
+            socketClient.connect()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "UnRegistering Receiver")
+        LocalBroadcastManager
+            .getInstance(this)
+            .unregisterReceiver(_userDataChangedReceiver)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "Registering Receiver")
+        LocalBroadcastManager
+            .getInstance(this)
+            .registerReceiver(
+                _userDataChangedReceiver,
+                IntentFilter(BROADCAST_USER_DATA_CHANGED))
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "Client disconnected")
+        socketClient.disconnect()
+        super.onDestroy()
     }
 
     fun updateHeader(){
@@ -106,6 +131,7 @@ class MainActivity : AppCompatActivity() {
                 val channelNameText = nameField.text.toString()
                 val descText = descField.text.toString()
                 Log.d(TAG, "Creating channel $channelNameText, $descText")
+                socketClient.emit(NEW_CHANNEL, channelNameText, descText)
             }.setNegativeButton("Cancel") { _, _ ->
             }.show()
         }
