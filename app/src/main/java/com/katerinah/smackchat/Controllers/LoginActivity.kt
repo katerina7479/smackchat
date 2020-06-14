@@ -1,23 +1,17 @@
 package com.katerinah.smackchat.Controllers
 
-import android.content.Context
+
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
-import androidx.core.content.getSystemService
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
 import com.katerinah.smackchat.Utils.BROADCAST_USER_DATA_CHANGED
-import kotlinx.android.synthetic.main.activity_create_user.*
 import kotlinx.android.synthetic.main.activity_login.*
 
-class LoginActivity : AppCompatActivity() {
-    private val TAG = "SmackLoginActivity"
+class LoginActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,21 +19,12 @@ class LoginActivity : AppCompatActivity() {
         if(AuthService.isLoggedIn) {
             finish()
         }
+        setProgressWidget(loginSpinner)
     }
 
-    private fun enableSpinner(enable: Boolean) {
-        if (enable) {
-            loginSpinner.visibility = View.VISIBLE
-        } else {
-            loginSpinner.visibility = View.INVISIBLE
-        }
+    override fun toggleButtons(enable: Boolean) {
         loginLoginButton.isEnabled = !enable
         loginSignupButton.isEnabled = !enable
-    }
-
-    fun errorToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        enableSpinner(false)
     }
 
     fun loginLoginButtonClicked(view: View){

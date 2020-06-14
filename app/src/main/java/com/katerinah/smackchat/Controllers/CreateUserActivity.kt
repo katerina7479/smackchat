@@ -2,21 +2,17 @@ package com.katerinah.smackchat.Controllers
 
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
-import com.katerinah.smackchat.Services.UserDataService
 import com.katerinah.smackchat.Utils.*
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
-class CreateUserActivity : AppCompatActivity() {
-    private val TAG = "SmackCreateUser"
+class CreateUserActivity : BaseActivity() {
 
     var userAvatar = "profileDefault"
     var avatarColor = "[0.5, 0.5, 0.5, 1]"
@@ -25,6 +21,7 @@ class CreateUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_user)
+        setProgressWidget(createSpinner)
     }
 
     fun onAvatarClicked(view: View){
@@ -57,20 +54,10 @@ class CreateUserActivity : AppCompatActivity() {
         avatarColor = "[$red, $green, $blue, 1]"
     }
 
-    private fun enableSpinner(enable: Boolean) {
-        if (enable) {
-            createSpinner.visibility = View.VISIBLE
-        } else {
-            createSpinner.visibility = View.INVISIBLE
-        }
+    override fun toggleButtons(enable: Boolean) {
         createUserButton.isEnabled = !enable
         avatarColorButton.isEnabled = !enable
         signupAvatarPreview.isEnabled = !enable
-    }
-
-    fun errorToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        enableSpinner(false)
     }
 
     fun onCreateUserClicked(view: View){

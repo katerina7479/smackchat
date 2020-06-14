@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.android.volley.Request.Method.*
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.katerinah.smackchat.Utils.*
@@ -14,7 +13,7 @@ import com.android.volley.toolbox.JsonObjectRequest as JsonObjectRequest
 
 object AuthService {
 
-    const val TAG = "API ERROR"
+    val TAG = "Smack ${javaClass.simpleName}"
 
     var isLoggedIn = false
     var userEmail = ""
@@ -41,7 +40,7 @@ object AuthService {
                     Log.d(TAG, "User already registered")
                     complete(true)
                 } else {
-                    Log.d(TAG, "Could not register user: $response")
+                    Log.e(TAG, "Could not register user: $response")
                     complete(false)
                 }
             }) {
@@ -72,12 +71,12 @@ object AuthService {
                     isLoggedIn = true
                     complete(true)
                 } catch (e: JSONException){
-                    Log.d(TAG, "Could not login user: ${e.localizedMessage}")
+                    Log.e(TAG, "Could not login user: ${e.localizedMessage}")
                     complete(false)
                 }
             },
             Response.ErrorListener {
-                Log.d(TAG, "Could not login user: $it")
+                Log.e(TAG, "Could not login user: $it")
                 complete(false)
             }) {
             override fun getBodyContentType(): String {
@@ -141,7 +140,7 @@ object AuthService {
                 complete(true)
             },
             Response.ErrorListener {
-                Log.d(TAG, "Could not retrieve user: $it")
+                Log.e(TAG, "Could not retrieve user: $it")
                 complete(false)
             }) {
             override fun getBodyContentType(): String {
@@ -154,6 +153,7 @@ object AuthService {
                 return headers
             }
         }
+
         Volley.newRequestQueue(context).add(request)
     }
 }

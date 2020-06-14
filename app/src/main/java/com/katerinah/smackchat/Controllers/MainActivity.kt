@@ -5,24 +5,35 @@ import android.content.*
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.katerinah.smackchat.Models.Channel
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
+import com.katerinah.smackchat.Services.MessageService
 import com.katerinah.smackchat.Services.UserDataService
 import com.katerinah.smackchat.Utils.*
 import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
-class MainActivity : AppCompatActivity() {
-    private val TAG = "SmackMainActivity"
-    val socketClient = IO.socket(SOCKET_URL)
+class MainActivity : BaseActivity() {
+    lateinit var channelAdapter: ArrayAdapter<Channel>
+    val socketClient: Socket = IO.socket(SOCKET_URL)
+    var clientConnected: Boolean = false
+    var receiverRegistered: Boolean = false
+
+    private fun setupAdapters() {
+        channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
+        channelList.adapter = channelAdapter
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,44 +48,68 @@ class MainActivity : AppCompatActivity() {
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
+        setupAdapters()
         updateHeader()
         updateMain()
-
-
     }
 
-    private val _userDataChangedReceiver = object: BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, "Client changed, updating")
-            updateHeader()
-            updateMain()
+    override fun onStart() {
+        super.onStart()
+        if (receiverRegistered){
+            Log.d(TAG, "UnRegistering Receiver")
+            LocalBroadcastManager
+                .getInstance(this)
+                .unregisterReceiver(_userDataChangedReceiver)
+            receiverRegistered = false
+        }
+        if (AuthService.isLoggedIn && !clientConnected) {
             Log.d(TAG, "Connecting Socket")
             socketClient.connect()
+            clientConnected = true
+            Log.d(TAG, "Socket Listener")
+            socketClient.on(CHANNEL_CREATED, onNewChannel)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "UnRegistering Receiver")
-        LocalBroadcastManager
-            .getInstance(this)
-            .unregisterReceiver(_userDataChangedReceiver)
+    override fun onStop() {
+        super.onStop()
+        if (clientConnected){
+            Log.d(TAG, "Client disconnected")
+            socketClient.disconnect()
+        }
+        if (!receiverRegistered) {
+            Log.d(TAG, "Registering Receiver")
+            LocalBroadcastManager
+                .getInstance(this)
+                .registerReceiver(
+                    _userDataChangedReceiver,
+                    IntentFilter(BROADCAST_USER_DATA_CHANGED))
+            receiverRegistered = true
+        }
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "Registering Receiver")
-        LocalBroadcastManager
-            .getInstance(this)
-            .registerReceiver(
-                _userDataChangedReceiver,
-                IntentFilter(BROADCAST_USER_DATA_CHANGED))
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)){
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
-    override fun onDestroy() {
-        Log.d(TAG, "Client disconnected")
-        socketClient.disconnect()
-        super.onDestroy()
+    val onChannelUpdate = {complete: Boolean ->
+        if (complete) {
+            Log.d(TAG, "Notify adapter channel updated")
+            channelAdapter.notifyDataSetChanged()
+        } else errorToast("Unable to update channels")
+    }
+
+    private val _userDataChangedReceiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            Log.d(TAG, "Client changed, updating")
+            updateHeader()
+            updateMain()
+            MessageService.getChannels(context, onChannelUpdate)
+        }
     }
 
     fun updateHeader(){
@@ -98,19 +133,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)){
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     fun loginButtonNavClicked(view: View) {
         if (AuthService.isLoggedIn) {
             Log.d(TAG, "Logout Button clicked")
             UserDataService.logout()
             AuthService.logout()
+            MessageService.logout()
+            channelAdapter.notifyDataSetChanged()
             updateHeader()
             updateMain()
         } else {
@@ -130,10 +159,22 @@ class MainActivity : AppCompatActivity() {
                 val descField = dialogView.findViewById<EditText>(R.id.addChannelDescText)
                 val channelNameText = nameField.text.toString()
                 val descText = descField.text.toString()
-                Log.d(TAG, "Creating channel $channelNameText, $descText")
+                Log.d(TAG, "Emitting Event add_channel $channelNameText, $descText")
                 socketClient.emit(NEW_CHANNEL, channelNameText, descText)
             }.setNegativeButton("Cancel") { _, _ ->
             }.show()
+        }
+    }
+
+    private val onNewChannel = Emitter.Listener { args ->
+        Log.d(TAG, "Got new channel from listener $args")
+        val name: String = args[0].toString()
+        val description: String = args[1] as String
+        val id: String = args[2] as String
+
+        runOnUiThread {
+            MessageService.channels.add(Channel(name, description, id))
+            channelAdapter.notifyDataSetChanged()
         }
     }
 
