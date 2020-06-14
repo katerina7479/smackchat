@@ -67,12 +67,25 @@ class CreateUserActivity : AppCompatActivity() {
 
         AuthService.registerUser(this, email, password) {complete ->
             if (complete){
-                Log.d(TAG,"User was created")
-                Toast.makeText(this, "User Created", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+                Log.d(TAG,"User registered")
+                AuthService.loginUser(this, email, password) {complete ->
+                    if(complete) {
+                        Log.d(TAG, "User logged In")
+                        AuthService.createUser(this, username, userAvatar, avatarColor) {complete ->
+                            if (complete) {
+                                Log.d(TAG, "User created")
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
+                            } else {
+                                Toast.makeText(this, "Unable to create user", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, "Unable to log in", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else (
-                Toast.makeText(this, "Unable to create user", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Unable to register user", Toast.LENGTH_SHORT).show()
             )
         }
     }
