@@ -7,8 +7,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
+import com.katerinah.smackchat.Services.UserDataService
+import com.katerinah.smackchat.Utils.*
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
@@ -54,39 +57,58 @@ class CreateUserActivity : AppCompatActivity() {
         avatarColor = "[$red, $green, $blue, 1]"
     }
 
+    private fun enableSpinner(enable: Boolean) {
+        if (enable) {
+            createSpinner.visibility = View.VISIBLE
+        } else {
+            createSpinner.visibility = View.INVISIBLE
+        }
+        createUserButton.isEnabled = !enable
+        avatarColorButton.isEnabled = !enable
+        signupAvatarPreview.isEnabled = !enable
+    }
+
+    fun errorToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        enableSpinner(false)
+    }
+
     fun onCreateUserClicked(view: View){
         Log.d(TAG, "User Create")
+        enableSpinner(true)
         val username = signupUserName.text.toString()
         val email = signupEmail.text.toString()
         val password = signupPassword.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()){
-            Toast.makeText(this, "Enter a user and password", Toast.LENGTH_SHORT).show()
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty()){
+            errorToast("Please enter all information")
             return
         }
 
-        AuthService.registerUser(this, email, password) {complete ->
-            if (complete){
-                Log.d(TAG,"User registered")
-                AuthService.loginUser(this, email, password) {complete ->
-                    if(complete) {
-                        Log.d(TAG, "User logged In")
-                        AuthService.createUser(this, username, userAvatar, avatarColor) {complete ->
-                            if (complete) {
-                                Log.d(TAG, "User created")
-                                val intent = Intent(this, MainActivity::class.java)
-                                startActivity(intent)
-                            } else {
-                                Toast.makeText(this, "Unable to create user", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(this, "Unable to log in", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else (
-                Toast.makeText(this, "Unable to register user", Toast.LENGTH_SHORT).show()
-            )
+        val createUserCallback = {complete: Boolean ->
+            if (complete) {
+                Log.d(TAG, "User created")
+                val userDataChanged = Intent(BROADCAST_USER_DATA_CHANGED)
+                LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChanged)
+                enableSpinner(false)
+                finish()
+            } else errorToast("Unable to create user")
         }
+
+        val loginUserCallback = {complete: Boolean ->
+            if (complete) {
+                Log.d(TAG, "User logged In")
+                AuthService.createUser(this, username, userAvatar, avatarColor) {createUserCallback}
+            } else errorToast("Unable to login")
+        }
+
+        val registerUserCallback = {complete: Boolean ->
+            if (complete) {
+                Log.d(TAG,"User registered")
+                AuthService.loginUser(this, email, password) {loginUserCallback}
+            } else errorToast("Unable to register user")
+        }
+
+        AuthService.registerUser(this, email, password) {registerUserCallback}
     }
 }

@@ -6,3 +6,4 @@ const val URL_ACCOUNT_REGISTER = "${BASE_URL}/account/register"
 const val URL_ACCOUNT_LOGIN = "${BASE_URL}/account/login"
 const val URL_ADD_USER = "${BASE_URL}/user/add"
 
+const val BROADCAST_USER_DATA_CHANGED = "BROADCAST_USER_DATA_CHANGED"
