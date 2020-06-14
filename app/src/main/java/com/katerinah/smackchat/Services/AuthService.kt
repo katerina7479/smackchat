@@ -31,7 +31,7 @@ object AuthService {
         jsonBody.put("password", password)
         val requestBody = jsonBody.toString()
 
-        val registerRequest = object : StringRequest(
+        val request = object : StringRequest(
             POST,
             URL_ACCOUNT_REGISTER,
             Response.Listener { complete(true) },
@@ -52,7 +52,7 @@ object AuthService {
                 return requestBody.toByteArray()
             }
         }
-        Volley.newRequestQueue(context).add(registerRequest)
+        VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
     fun loginUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit){
@@ -60,7 +60,7 @@ object AuthService {
         requestBody.put("email", email)
         requestBody.put("password", password)
 
-        val loginRequest = object : JsonObjectRequest(
+        val request = object : JsonObjectRequest(
             URL_ACCOUNT_LOGIN,
             requestBody,
             Response.Listener {
@@ -83,7 +83,7 @@ object AuthService {
                 return "application/json; charset=utf-8"
             }
         }
-        Volley.newRequestQueue(context).add(loginRequest)
+        VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
     fun createUser(context: Context, userName: String, avatarName: String, avatarColor: String, complete: (Boolean) -> Unit){
@@ -124,7 +124,7 @@ object AuthService {
                 return headers
             }
         }
-        Volley.newRequestQueue(context).add(request)
+        VolleyService.getInstance(context).addToRequestQueue(request)
     }
 
     fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
@@ -154,6 +154,6 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(request)
+        VolleyService.getInstance(context).addToRequestQueue(request)
     }
 }
