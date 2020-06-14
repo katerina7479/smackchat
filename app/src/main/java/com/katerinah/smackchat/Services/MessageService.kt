@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.Volley
 import com.katerinah.smackchat.Models.Channel
 import com.katerinah.smackchat.Utils.URL_GET_CHANNELS
 import org.json.JSONException
@@ -51,6 +50,6 @@ object MessageService {
             }
         }
 
-        Volley.newRequestQueue(context).add(request)
+        VolleyService.getInstance(context).addToRequestQueue(request)
     }
 }

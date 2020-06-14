@@ -5,7 +5,6 @@ import android.util.Log
 import com.android.volley.Request.Method.*
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.katerinah.smackchat.Utils.*
 import org.json.JSONException
 import org.json.JSONObject
