@@ -1,11 +1,14 @@
 package com.katerinah.smackchat.Controllers
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.getSystemService
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
@@ -30,6 +33,8 @@ class LoginActivity : AppCompatActivity() {
         } else {
             loginSpinner.visibility = View.INVISIBLE
         }
+        loginLoginButton.isEnabled = !enable
+        loginSignupButton.isEnabled = !enable
     }
 
     fun errorToast(message: String) {
@@ -37,11 +42,24 @@ class LoginActivity : AppCompatActivity() {
         enableSpinner(false)
     }
 
+    fun hideKeyboard() {
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (inputManager.isAcceptingText) {
+            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+        }
+    }
+
     fun loginLoginButtonClicked(view: View){
         Log.d(TAG, "Login Button clicked")
         enableSpinner(true)
+        hideKeyboard()
         val email = LoginEmailText.text.toString()
         val password = LoginPasswordText.text.toString()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            errorToast("Please enter all information")
+            return
+        }
 
         val getUserCallback = {complete: Boolean ->
             if (complete) {
