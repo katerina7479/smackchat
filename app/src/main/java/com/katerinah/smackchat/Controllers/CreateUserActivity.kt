@@ -98,17 +98,17 @@ class CreateUserActivity : AppCompatActivity() {
         val loginUserCallback = {complete: Boolean ->
             if (complete) {
                 Log.d(TAG, "User logged In")
-                AuthService.createUser(this, username, userAvatar, avatarColor) {createUserCallback}
+                AuthService.createUser(this, username, userAvatar, avatarColor, createUserCallback)
             } else errorToast("Unable to login")
         }
 
         val registerUserCallback = {complete: Boolean ->
             if (complete) {
                 Log.d(TAG,"User registered")
-                AuthService.loginUser(this, email, password) {loginUserCallback}
+                AuthService.loginUser(this, email, password, loginUserCallback)
             } else errorToast("Unable to register user")
         }
 
-        AuthService.registerUser(this, email, password) {registerUserCallback}
+        AuthService.registerUser(this, email, password, registerUserCallback)
     }
 }

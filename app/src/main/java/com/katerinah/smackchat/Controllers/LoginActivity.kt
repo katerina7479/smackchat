@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
+import com.katerinah.smackchat.Utils.BROADCAST_USER_DATA_CHANGED
+import kotlinx.android.synthetic.main.activity_create_user.*
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
@@ -16,26 +19,53 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        if(AuthService.isLoggedIn) {
+            finish()
+        }
+    }
+
+    private fun enableSpinner(enable: Boolean) {
+        if (enable) {
+            loginSpinner.visibility = View.VISIBLE
+        } else {
+            loginSpinner.visibility = View.INVISIBLE
+        }
+    }
+
+    fun errorToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        enableSpinner(false)
     }
 
     fun loginLoginButtonClicked(view: View){
         Log.d(TAG, "Login Button clicked")
+        enableSpinner(true)
         val email = LoginEmailText.text.toString()
         val password = LoginPasswordText.text.toString()
-        AuthService.loginUser(this, email, password) {complete ->
-            if(complete) {
-                Log.d(TAG, "User logged In")
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "Unable to log in", Toast.LENGTH_SHORT).show()
-            }
+
+        val getUserCallback = {complete: Boolean ->
+            if (complete) {
+                enableSpinner(false)
+                val userDataChanged = Intent(BROADCAST_USER_DATA_CHANGED)
+                LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChanged)
+                finish()
+            } else errorToast("Unable to retrieve profile")
         }
+
+        val loginUserCallback = {complete: Boolean ->
+            if (complete) {
+                Log.d(TAG, "User logged In")
+                AuthService.getUserByEmail(this, getUserCallback)
+            } else errorToast("Unable to log in")
+        }
+
+        AuthService.loginUser(this, email, password, loginUserCallback)
     }
 
     fun loginSignupButtonClicked(view: View){
         Log.d(TAG, "Signup Button clicked")
         val intent = Intent(this, CreateUserActivity::class.java)
         startActivity(intent)
+        finish()
     }
 }

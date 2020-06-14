@@ -20,6 +20,12 @@ object AuthService {
     var userEmail = ""
     var authToken = ""
 
+    fun logout() {
+        isLoggedIn = false
+        userEmail = ""
+        authToken = ""
+    }
+
     fun registerUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
@@ -107,6 +113,35 @@ object AuthService {
             },
             Response.ErrorListener {
                 Log.d(TAG, "Could not create user: $it")
+                complete(false)
+            }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer $authToken")
+                return headers
+            }
+        }
+        Volley.newRequestQueue(context).add(request)
+    }
+
+    fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
+        val request = object: JsonObjectRequest (
+            "${URL_GET_USER_BY_EMAIL}${userEmail}",
+            null,
+            Response.Listener { response ->
+                UserDataService.name = response.getString("name")
+                UserDataService.email = response.getString("email")
+                UserDataService.id = response.getString("_id")
+                UserDataService.avatarName = response.getString("avatarName")
+                UserDataService.avatarColor = response.getString("avatarColor")
+                complete(true)
+            },
+            Response.ErrorListener {
+                Log.d(TAG, "Could not retrieve user: $it")
                 complete(false)
             }) {
             override fun getBodyContentType(): String {
