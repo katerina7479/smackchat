@@ -1,6 +1,5 @@
 package com.katerinah.smackchat.Services
 
-import android.content.Context
 import android.util.Log
 import com.android.volley.Request.Method.*
 import com.android.volley.Response

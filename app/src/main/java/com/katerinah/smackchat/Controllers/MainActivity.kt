@@ -30,10 +30,16 @@ class MainActivity : BaseActivity() {
     val socketClient: Socket = IO.socket(SOCKET_URL)
     var clientConnected: Boolean = false
     var receiverRegistered: Boolean = false
+    var selectedChannel: Channel? = null
 
     private fun setupAdapters() {
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
         channelList.adapter = channelAdapter
+        channelList.setOnItemClickListener { _, _, position, _ ->
+            selectedChannel = MessageService.channels[position]
+            drawer_layout.closeDrawer(GravityCompat.START)
+            onSelectChannel()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,9 +108,17 @@ class MainActivity : BaseActivity() {
 
     val onChannelUpdate = {complete: Boolean ->
         if (complete) {
-            Log.d(TAG, "Notify adapter channel updated")
-            channelAdapter.notifyDataSetChanged()
+            if (MessageService.channels.count() > 0){
+                selectedChannel = MessageService.channels[0]
+                channelAdapter.notifyDataSetChanged()
+                onSelectChannel()
+            }
         } else errorToast("Unable to update channels")
+    }
+
+    fun onSelectChannel() {
+        mainChannelName.text = "#${selectedChannel?.name}"
+        // get all the channel messages
     }
 
     private val _userDataChangedReceiver = object: BroadcastReceiver() {
