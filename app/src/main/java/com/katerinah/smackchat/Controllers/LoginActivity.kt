@@ -51,11 +51,11 @@ class LoginActivity : BaseActivity() {
         val loginUserCallback = {complete: Boolean ->
             if (complete) {
                 Log.d(TAG, "User logged In")
-                AuthService.getUserByEmail(this, getUserCallback)
+                AuthService.getUserByEmail(getUserCallback)
             } else errorToast("Unable to log in")
         }
 
-        AuthService.loginUser(this, email, password, loginUserCallback)
+        AuthService.loginUser(email, password, loginUserCallback)
     }
 
     fun loginSignupButtonClicked(view: View){

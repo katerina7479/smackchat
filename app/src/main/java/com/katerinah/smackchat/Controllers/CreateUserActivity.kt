@@ -14,9 +14,9 @@ import java.util.*
 
 class CreateUserActivity : BaseActivity() {
 
-    var userAvatar = "profileDefault"
-    var avatarColor = "[0.5, 0.5, 0.5, 1]"
-    val random  = Random()
+    private var userAvatar = "profileDefault"
+    private var avatarColor = "[0.5, 0.5, 0.5, 1]"
+    private val random  = Random()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,17 +85,17 @@ class CreateUserActivity : BaseActivity() {
         val loginUserCallback = {complete: Boolean ->
             if (complete) {
                 Log.d(TAG, "User logged In")
-                AuthService.createUser(this, username, userAvatar, avatarColor, createUserCallback)
+                AuthService.createUser(username, userAvatar, avatarColor, createUserCallback)
             } else errorToast("Unable to login")
         }
 
         val registerUserCallback = {complete: Boolean ->
             if (complete) {
                 Log.d(TAG,"User registered")
-                AuthService.loginUser(this, email, password, loginUserCallback)
+                AuthService.loginUser(email, password, loginUserCallback)
             } else errorToast("Unable to register user")
         }
 
-        AuthService.registerUser(this, email, password, registerUserCallback)
+        AuthService.registerUser(email, password, registerUserCallback)
     }
 }

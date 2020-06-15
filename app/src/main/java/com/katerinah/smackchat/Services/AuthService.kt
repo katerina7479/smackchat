@@ -19,7 +19,7 @@ object AuthService {
         App.deviceStorage.authToken = ""
     }
 
-    fun registerUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
+    fun registerUser(email: String, password: String, complete: (Boolean) -> Unit) {
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
         jsonBody.put("password", password)
@@ -43,7 +43,7 @@ object AuthService {
         VolleyService.addToRequestQueue(request)
     }
 
-    fun loginUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit){
+    fun loginUser(email: String, password: String, complete: (Boolean) -> Unit){
         val requestBody = JSONObject()
         requestBody.put("email", email)
         requestBody.put("password", password)
@@ -71,7 +71,7 @@ object AuthService {
         VolleyService.addToRequestQueue(request)
     }
 
-    fun createUser(context: Context, userName: String, avatarName: String, avatarColor: String, complete: (Boolean) -> Unit){
+    fun createUser(userName: String, avatarName: String, avatarColor: String, complete: (Boolean) -> Unit){
         val requestBody = JSONObject()
         requestBody.put("email", App.deviceStorage.userEmail)
         requestBody.put("name", userName)
@@ -103,7 +103,7 @@ object AuthService {
         VolleyService.addToRequestQueue(request)
     }
 
-    fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
+    fun getUserByEmail(complete: (Boolean) -> Unit){
 
         val request = VolleyService.getAuthJsonObjectRequest(
             "${URL_GET_USER_BY_EMAIL}${App.deviceStorage.userEmail}",

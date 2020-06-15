@@ -16,7 +16,7 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     open fun errorToast(message: String) {
-        Log.e(TAG, "$message")
+        Log.e(TAG, message)
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         enableSpinner(false)
     }

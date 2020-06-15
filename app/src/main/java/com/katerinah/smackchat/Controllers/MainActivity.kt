@@ -112,7 +112,7 @@ class MainActivity : BaseActivity() {
             Log.d(TAG, "Client changed, updating")
             updateHeader()
             updateMain()
-            MessageService.getChannels(context, onChannelUpdate)
+            MessageService.getChannels(onChannelUpdate)
         }
     }
 
@@ -124,14 +124,14 @@ class MainActivity : BaseActivity() {
                 Log.d(TAG, "Logged back in")
                 updateHeader()
                 updateMain()
-                MessageService.getChannels(context, onChannelUpdate)
+                MessageService.getChannels(onChannelUpdate)
             } else {
                 Log.e(TAG, "Auth has expired")
                 Toast.makeText(this, "Login Expired, please login again", Toast.LENGTH_LONG).show()
                 enableSpinner(false)
             }
         }
-        AuthService.getUserByEmail(this, getUserCallback)
+        AuthService.getUserByEmail(getUserCallback)
     }
 
     fun updateHeader(){

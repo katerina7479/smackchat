@@ -6,13 +6,13 @@ import android.util.Log
 
 class DeviceStorage (context: Context) {
     val TAG = "Smack ${javaClass.simpleName}"
-    val FileName = "prefs"
-    val storage: SharedPreferences = context.getSharedPreferences(FileName, 0)
+    private val FileName = "prefs"
+    private val storage: SharedPreferences = context.getSharedPreferences(FileName, 0)
 
     // Keys
-    val IS_LOGGED_IN = "isLoggedIn"
-    val USER_EMAIL =  "userEmail"
-    val AUTH_TOKEN = "authToken"
+    private val IS_LOGGED_IN = "isLoggedIn"
+    private val USER_EMAIL =  "userEmail"
+    private val AUTH_TOKEN = "authToken"
 
     var isLoggedIn: Boolean
         get() {

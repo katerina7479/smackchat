@@ -17,7 +17,7 @@ object MessageService {
         channels.clear()
     }
 
-    fun getChannels(context: Context, complete: (Boolean) -> Unit) {
+    fun getChannels(complete: (Boolean) -> Unit) {
         Log.d(TAG, "Getting channels")
         val request = VolleyService.getAuthJsonArrayRequest(
             URL_GET_CHANNELS,
