@@ -10,8 +10,8 @@ import org.json.JSONException
 object MessageService {
 
     val TAG = "Smack ${javaClass.simpleName}"
-    val channels = mutableListOf<Channel>()
-    val messages = mutableListOf<Message>()
+    val channels = arrayListOf<Channel>()
+    val messages = arrayListOf<Message>()
 
     fun logout() {
         Log.d(TAG, "Clearing channels")

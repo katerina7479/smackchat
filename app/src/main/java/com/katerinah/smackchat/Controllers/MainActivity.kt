@@ -12,6 +12,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.katerinah.smackchat.Adapters.MessageAdapter
 import com.katerinah.smackchat.Models.Channel
 import com.katerinah.smackchat.Models.Message
 import com.katerinah.smackchat.R
@@ -24,10 +27,13 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.message_list_item_view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : BaseActivity() {
     lateinit var channelAdapter: ArrayAdapter<Channel>
+    lateinit var messageAdapter: MessageAdapter
+
     val socketClient: Socket = IO.socket(SOCKET_URL)
     var clientConnected: Boolean = false
     var receiverRegistered: Boolean = false
@@ -41,6 +47,11 @@ class MainActivity : BaseActivity() {
             drawer_layout.closeDrawer(GravityCompat.START)
             onSelectChannel()
         }
+        val layoutManager = LinearLayoutManager(this)
+        messageAdapter = MessageAdapter(this, MessageService.messages)
+        messageContainer.adapter = messageAdapter
+        messageContainer.layoutManager = layoutManager
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,9 +131,7 @@ class MainActivity : BaseActivity() {
 
     val onMessagesUpdate = {complete: Boolean ->
         if (complete) {
-            if (MessageService.messages.count() > 0) {
-                Log.d(TAG,"Updating message display")
-            }
+            resetMessages()
         } else errorToast("No messages to update")
     }
 
@@ -189,6 +198,7 @@ class MainActivity : BaseActivity() {
             AuthService.logout()
             MessageService.logout()
             channelAdapter.notifyDataSetChanged()
+            messageAdapter.notifyDataSetChanged()
             updateHeader()
             updateMain()
         } else {
@@ -225,6 +235,7 @@ class MainActivity : BaseActivity() {
             runOnUiThread {
                 MessageService.channels.add(Channel(name, description, id))
                 channelAdapter.notifyDataSetChanged()
+                resetMessages()
             }
         }
     }
@@ -243,8 +254,16 @@ class MainActivity : BaseActivity() {
             val newMessage = Message(messageBody, userName, channelId, userAvatar, userAvatarColor, messageId, timeStamp)
             runOnUiThread {
                 MessageService.messages.add(newMessage)
-
+                resetMessages()
             }
+        }
+    }
+
+    fun resetMessages(){
+        Log.d(TAG, "Updating Message Display")
+        messageAdapter.notifyDataSetChanged()
+        if (messageAdapter.itemCount > 0) {
+            messageContainer.smoothScrollToPosition(messageAdapter.itemCount - 1)
         }
     }
 
