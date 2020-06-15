@@ -17,4 +17,5 @@
     <string name="create_user">Create User</string>
     <string name="generate_background_color">Generate Background Color</string>
     <string name="select_avatar">Select Avatar</string>
+    <string name="logout">Logout</string>
 </resources>

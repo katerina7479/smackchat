@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
@@ -16,7 +17,7 @@ class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        if(AuthService.isLoggedIn) {
+        if(App.deviceStorage.isLoggedIn) {
             finish()
         }
         setProgressWidget(loginSpinner)

@@ -9,6 +9,7 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.katerinah.smackchat.Controllers.App
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -63,7 +64,7 @@ class VolleyService(context: Context) {
 
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                    headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
                     return headers
                 }
             }
@@ -80,7 +81,7 @@ class VolleyService(context: Context) {
                 }
                 override fun getHeaders(): MutableMap<String, String> {
                     val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                    headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
                     return headers
                 }
             }

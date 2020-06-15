@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.android.volley.Request.Method.*
 import com.android.volley.Response
+import com.katerinah.smackchat.Controllers.App
 import com.katerinah.smackchat.Utils.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -12,14 +13,10 @@ object AuthService {
 
     val TAG = "Smack ${javaClass.simpleName}"
 
-    var isLoggedIn = false
-    var userEmail = ""
-    var authToken = ""
-
     fun logout() {
-        isLoggedIn = false
-        userEmail = ""
-        authToken = ""
+        App.deviceStorage.isLoggedIn = false
+        App.deviceStorage.userEmail = ""
+        App.deviceStorage.authToken = ""
     }
 
     fun registerUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
@@ -57,9 +54,9 @@ object AuthService {
             Response.Listener {
                 Log.d(TAG, "Login Response $it")
                 try {
-                    authToken = it.getString("token")
-                    userEmail = it.getString("user")
-                    isLoggedIn = true
+                    App.deviceStorage.authToken = it.getString("token")
+                    App.deviceStorage.userEmail = it.getString("user")
+                    App.deviceStorage.isLoggedIn = true
                     complete(true)
                 } catch (e: JSONException){
                     Log.e(TAG, "Could not login user: ${e.localizedMessage}")
@@ -76,7 +73,7 @@ object AuthService {
 
     fun createUser(context: Context, userName: String, avatarName: String, avatarColor: String, complete: (Boolean) -> Unit){
         val requestBody = JSONObject()
-        requestBody.put("email", userEmail)
+        requestBody.put("email", App.deviceStorage.userEmail)
         requestBody.put("name", userName)
         requestBody.put("avatarName", avatarName)
         requestBody.put("avatarColor", avatarColor)
@@ -109,7 +106,7 @@ object AuthService {
     fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
 
         val request = VolleyService.getAuthJsonObjectRequest(
-            "${URL_GET_USER_BY_EMAIL}${userEmail}",
+            "${URL_GET_USER_BY_EMAIL}${App.deviceStorage.userEmail}",
             null,
             Response.Listener { response ->
                 UserDataService.name = response.getString("name")

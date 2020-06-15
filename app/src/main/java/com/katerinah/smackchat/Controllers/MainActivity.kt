@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -48,6 +49,9 @@ class MainActivity : BaseActivity() {
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
+        if (App.deviceStorage.isLoggedIn) {
+            restartLoggedIn(this)
+        }
         setupAdapters()
         updateHeader()
         updateMain()
@@ -62,7 +66,7 @@ class MainActivity : BaseActivity() {
                 .unregisterReceiver(_userDataChangedReceiver)
             receiverRegistered = false
         }
-        if (AuthService.isLoggedIn && !clientConnected) {
+        if (App.deviceStorage.isLoggedIn && !clientConnected) {
             Log.d(TAG, "Connecting Socket")
             socketClient.connect()
             clientConnected = true
@@ -112,11 +116,29 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    fun restartLoggedIn(context: Context) {
+        Log.d(TAG, "App restarted, re-aquiring user")
+
+        val getUserCallback: (Boolean) -> Unit = {complete: Boolean ->
+            if (complete) {
+                Log.d(TAG, "Logged back in")
+                updateHeader()
+                updateMain()
+                MessageService.getChannels(context, onChannelUpdate)
+            } else {
+                Log.e(TAG, "Auth has expired")
+                Toast.makeText(this, "Login Expired, please login again", Toast.LENGTH_LONG).show()
+                enableSpinner(false)
+            }
+        }
+        AuthService.getUserByEmail(this, getUserCallback)
+    }
+
     fun updateHeader(){
-        if (AuthService.isLoggedIn) {
-            loginButtonNavHeader.text = "Logout"
+        if (App.deviceStorage.isLoggedIn) {
+            loginButtonNavHeader.text = getString(R.string.logout)
         } else {
-            loginButtonNavHeader.text = "Login"
+            loginButtonNavHeader.text = getString(R.string.login)
         }
         profileNameNavHeader.text = UserDataService.name
         profileEmailNavHeader.text = UserDataService.email
@@ -126,7 +148,7 @@ class MainActivity : BaseActivity() {
     }
 
     fun updateMain(){
-        if (AuthService.isLoggedIn) {
+        if (App.deviceStorage.isLoggedIn) {
             mainChannelName.text = ""
         } else {
             mainChannelName.text = getString(R.string.please_log_in)
@@ -134,7 +156,7 @@ class MainActivity : BaseActivity() {
     }
 
     fun loginButtonNavClicked(view: View) {
-        if (AuthService.isLoggedIn) {
+        if (App.deviceStorage.isLoggedIn) {
             Log.d(TAG, "Logout Button clicked")
             UserDataService.logout()
             AuthService.logout()
@@ -150,11 +172,11 @@ class MainActivity : BaseActivity() {
     }
 
     fun addChannelClicked(view: View){
-        if (AuthService.isLoggedIn) {
+        if (App.deviceStorage.isLoggedIn) {
             Log.d(TAG, "Add channel clicked")
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_modal, null)
-            builder.setView(dialogView).setPositiveButton("Add") { dialogInterface: DialogInterface, i: Int ->
+            builder.setView(dialogView).setPositiveButton("Add") { _: DialogInterface, _: Int ->
                 val nameField = dialogView.findViewById<EditText>(R.id.addChannelNameText)
                 val descField = dialogView.findViewById<EditText>(R.id.addChannelDescText)
                 val channelNameText = nameField.text.toString()
