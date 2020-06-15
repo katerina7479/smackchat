@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.katerinah.smackchat.Models.Channel
+import com.katerinah.smackchat.Models.Message
 import com.katerinah.smackchat.R
 import com.katerinah.smackchat.Services.AuthService
 import com.katerinah.smackchat.Services.MessageService
@@ -78,6 +79,7 @@ class MainActivity : BaseActivity() {
             clientConnected = true
             Log.d(TAG, "Socket Listener")
             socketClient.on(CHANNEL_CREATED, onNewChannel)
+            socketClient.on(MESSAGE_CREATED, onNewMessage)
         }
     }
 
@@ -113,12 +115,23 @@ class MainActivity : BaseActivity() {
                 channelAdapter.notifyDataSetChanged()
                 onSelectChannel()
             }
-        } else errorToast("Unable to update channels")
+        } else errorToast("No channels to update")
+    }
+
+    val onMessagesUpdate = {complete: Boolean ->
+        if (complete) {
+            if (MessageService.messages.count() > 0) {
+                Log.d(TAG,"Updating message display")
+            }
+        } else errorToast("No messages to update")
     }
 
     fun onSelectChannel() {
         mainChannelName.text = "#${selectedChannel?.name}"
         // get all the channel messages
+        if (selectedChannel != null) {
+            MessageService.getMessages(selectedChannel!!, onMessagesUpdate)
+        }
     }
 
     private val _userDataChangedReceiver = object: BroadcastReceiver() {
@@ -204,17 +217,55 @@ class MainActivity : BaseActivity() {
 
     private val onNewChannel = Emitter.Listener { args ->
         Log.d(TAG, "Got new channel from listener $args")
-        val name: String = args[0].toString()
-        val description: String = args[1] as String
-        val id: String = args[2] as String
+        if (App.deviceStorage.isLoggedIn){
+            val name: String = args[0].toString()
+            val description: String = args[1] as String
+            val id: String = args[2] as String
 
-        runOnUiThread {
-            MessageService.channels.add(Channel(name, description, id))
-            channelAdapter.notifyDataSetChanged()
+            runOnUiThread {
+                MessageService.channels.add(Channel(name, description, id))
+                channelAdapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private val onNewMessage = Emitter.Listener {args ->
+        Log.d(TAG, "New Message from listener $args")
+        val channelId = args[2] as String
+        if (App.deviceStorage.isLoggedIn && channelId == selectedChannel?.id) {
+            val messageBody = args[0] as String
+            val userName = args[3] as String
+            val userAvatar = args[4] as String
+            val userAvatarColor = args[5] as String
+            val messageId = args[6] as String
+            val timeStamp = args[7] as String
+
+            val newMessage = Message(messageBody, userName, channelId, userAvatar, userAvatarColor, messageId, timeStamp)
+            runOnUiThread {
+                MessageService.messages.add(newMessage)
+
+            }
         }
     }
 
     fun sendButtonClicked(view: View){
-        Log.d(TAG, "Message send button clicked")
+        Log.d(TAG, "Sending Message")
+        if (App.deviceStorage.isLoggedIn && messageText.text.isNotEmpty()) {
+            try {
+                val messageBody = messageText.text.toString()
+                val userId  = UserDataService.id
+                val channelId = selectedChannel!!.id
+                val userName = UserDataService.name
+                val userAvatar = UserDataService.avatarName
+                val userAvatarColor = UserDataService.avatarColor
+                socketClient.emit(NEW_MESSAGE, messageBody, userId, channelId, userName, userAvatar, userAvatarColor)
+
+                messageText.text.clear()
+            } catch (e: NullPointerException) {
+                errorToast("Must select a channel to send messages!")
+            }
+        } else {
+            errorToast("Enter your message")
+        }
     }
 }
