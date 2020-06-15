@@ -22,7 +22,7 @@ class MessageAdapter(val context: Context, val messages: ArrayList<Message>): Re
             userImage?.setImageResource(resourceId)
             userImage?.setBackgroundColor(message.getAvatarColor())
             userName?.text = message.userName
-            timestamp?.text = message.timeStamp
+            timestamp?.text = message.formattedTimestamp()
             messageBody?.text = message.message
         }
     }
