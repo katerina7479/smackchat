@@ -40,7 +40,7 @@ object AuthService {
             },
             requestBody
         )
-        VolleyService.getInstance(context).addToRequestQueue(request)
+        VolleyService.addToRequestQueue(request)
     }
 
     fun loginUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit){
@@ -68,7 +68,7 @@ object AuthService {
                 complete(false)
             }
         )
-        VolleyService.getInstance(context).addToRequestQueue(request)
+        VolleyService.addToRequestQueue(request)
     }
 
     fun createUser(context: Context, userName: String, avatarName: String, avatarColor: String, complete: (Boolean) -> Unit){
@@ -100,7 +100,7 @@ object AuthService {
                 complete(false)
             }
         )
-        VolleyService.getInstance(context).addToRequestQueue(request)
+        VolleyService.addToRequestQueue(request)
     }
 
     fun getUserByEmail(context: Context, complete: (Boolean) -> Unit){
@@ -121,6 +121,6 @@ object AuthService {
                 complete(false)
             }
         )
-        VolleyService.getInstance(context).addToRequestQueue(request)
+        VolleyService.addToRequestQueue(request)
     }
 }

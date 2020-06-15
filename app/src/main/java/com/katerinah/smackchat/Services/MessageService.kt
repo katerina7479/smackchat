@@ -39,6 +39,6 @@ object MessageService {
                 complete(false)
             }
         )
-        VolleyService.getInstance(context).addToRequestQueue(request)
+        VolleyService.addToRequestQueue(request)
     }
 }

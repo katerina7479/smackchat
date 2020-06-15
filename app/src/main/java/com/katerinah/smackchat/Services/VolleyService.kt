@@ -14,87 +14,83 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 
-class VolleyService(context: Context) {
-    companion object {
-        @Volatile
-        private var INSTANCE: VolleyService? = null
+object VolleyService {
+    private var context: Context?  = null
 
-        fun getInstance(context: Context) =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: VolleyService(context).also {
-                    INSTANCE = it
-                }
+    private val queue: RequestQueue by lazy {
+        if (context == null) {
+            throw NullPointerException(" Initialize VolleyService in application class")
+        } else {
+            Volley.newRequestQueue(context)
         }
+    }
 
-        fun getStringRequest(method: Int, url: String, listener: Listener<String>, errorListener: Response.ErrorListener, requestBody: String): StringRequest {
-            return object : StringRequest(method, url, listener, errorListener){
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
+    fun init(context: Context) {
+        this.context = context
+    }
 
-                override fun getBody(): ByteArray? {
-                    return requestBody.toByteArray()
-                }
+    fun getStringRequest(method: Int, url: String, listener: Listener<String>, errorListener: Response.ErrorListener, requestBody: String): StringRequest {
+        return object : StringRequest(method, url, listener, errorListener){
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
             }
-        }
 
-        fun getJsonObjectRequest(url: String, jsonRequest: JSONObject, listener: Listener<JSONObject>, errorListener: Response.ErrorListener): JsonObjectRequest{
-            return object : JsonObjectRequest(
-                url,
-                jsonRequest,
-                listener,
-                errorListener
-            ) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-            }
-        }
-
-        fun getAuthJsonObjectRequest(url: String, jsonRequest: JSONObject?, listener: Listener<JSONObject>, errorListener: Response.ErrorListener): JsonObjectRequest{
-            return object : JsonObjectRequest(
-                url,
-                jsonRequest,
-                listener,
-                errorListener
-            ) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
-                    return headers
-                }
-            }
-        }
-
-        fun getAuthJsonArrayRequest(url: String, listener: Listener<JSONArray>, errorListener: Response.ErrorListener): JsonArrayRequest {
-            return object: JsonArrayRequest(
-                url,
-                listener,
-                errorListener
-            ) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
-                    return headers
-                }
+            override fun getBody(): ByteArray? {
+                return requestBody.toByteArray()
             }
         }
     }
 
-    val requestQueue: RequestQueue by lazy {
-        // applicationContext is key, it keeps you from leaking the
-        // Activity or BroadcastReceiver if someone passes one in.
-        Volley.newRequestQueue(context.applicationContext)
+    fun getJsonObjectRequest(url: String, jsonRequest: JSONObject, listener: Listener<JSONObject>, errorListener: Response.ErrorListener): JsonObjectRequest{
+        return object : JsonObjectRequest(
+            url,
+            jsonRequest,
+            listener,
+            errorListener
+        ) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+        }
+    }
+
+    fun getAuthJsonObjectRequest(url: String, jsonRequest: JSONObject?, listener: Listener<JSONObject>, errorListener: Response.ErrorListener): JsonObjectRequest{
+        return object : JsonObjectRequest(
+            url,
+            jsonRequest,
+            listener,
+            errorListener
+        ) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
+                return headers
+            }
+        }
+    }
+
+    fun getAuthJsonArrayRequest(url: String, listener: Listener<JSONArray>, errorListener: Response.ErrorListener): JsonArrayRequest {
+        return object: JsonArrayRequest(
+            url,
+            listener,
+            errorListener
+        ) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers.put("Authorization", "Bearer ${App.deviceStorage.authToken}")
+                return headers
+            }
+        }
     }
 
     fun <T> addToRequestQueue(req: Request<T>) {
-        requestQueue.add(req)
+        queue.add(req)
     }
 }
